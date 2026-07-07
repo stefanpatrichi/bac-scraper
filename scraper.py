@@ -38,8 +38,7 @@ def parse_table_to_grid(table_html):
             col_idx += cs
     return grid
 
-def scrape_bac_results(start_page=1, end_page=5):
-    base_url = "https://static.bacalaureat.edu.ro/2025/rapoarte/rezultate/dupa_medie/page_{}.html"
+def scrape_bac_results(base_url,start_page=1, end_page=5):
     all_candidates = []
 
     for page_num in range(start_page, end_page + 1):
@@ -140,12 +139,12 @@ def scrape_bac_results(start_page=1, end_page=5):
             }
             
             columns_to_keep = [
-                "num",
+                # "num",
                 "id",
                 "ro_written",
                 "ro_remark",
                 "ro_final",
-                "average"
+                # "average"
             ]
 
             candidate_idx += 1
@@ -154,12 +153,16 @@ def scrape_bac_results(start_page=1, end_page=5):
                 filtered_candidate = {key: candidate_data[key] for key in columns_to_keep if key in candidate_data}            
                 all_candidates.append(filtered_candidate)
                 
-        # time.sleep(0.2)
+        time.sleep(0.05)
 
     return pd.DataFrame(all_candidates)
 
 if __name__ == "__main__":
-    df_results = scrape_bac_results(start_page=1, end_page=1000)
-    csv_filename = "results.csv"
-    df_results.to_csv(csv_filename, index=False, encoding='utf-8-sig')
-    print(f"\nScrape finished! Data outputted to {csv_filename}")
+    url1 = "https://static.bacalaureat.edu.ro/2025/rapoarte/rezultate/dupa_medie/page_{}.html"
+    url2 = "https://static.bacalaureat.edu.ro/2024/rapoarte/rezultate/dupa_medie/page_{}.html"
+    
+    for url in [url1, url2]:
+        df_results = scrape_bac_results(base_url=url, start_page=1, end_page=500)
+        csv_filename = "results.csv"
+        df_results.to_csv(csv_filename, index=False, encoding='utf-8-sig', mode='a')
+        print(f"\nScrape for {url} finished! Data outputted to {csv_filename}")
